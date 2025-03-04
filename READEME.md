@@ -52,6 +52,24 @@ Theory Bot is an AI-powered web application that generates wild, unhinged theori
    http://localhost:8000
    ```
 
+### Running in Mock Mode (No LM Studio Required)
+
+You can run Theory Bot in mock mode, which doesn't require LM Studio to be running:
+
+```bash
+python main.py --mock
+```
+
+This mode uses predefined responses instead of calling the LLM API, which is useful for testing or when you don't have access to LM Studio.
+
+### Changing the Port
+
+If port 8000 is already in use, you can specify a different port:
+
+```bash
+python main.py --port 8001
+```
+
 ## 🔌 API Endpoints
 
 The application provides the following endpoints:

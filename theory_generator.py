@@ -1,6 +1,28 @@
 from utils import call_llm_api, save_theory_to_cache, get_cached_theory
 import random
 
+def extract_keywords_with_llm(text: str) -> list:
+    """
+    Use the LLM to extract keywords from the input text.
+    
+    Args:
+        text: The text to extract keywords from
+        
+    Returns:
+        A list of extracted keywords
+    """
+    keyword_prompt = f"""
+    Extract 5-10 important keywords, concepts, or entities from the following text.
+    Return ONLY the keywords as a comma-separated list, with no additional text or explanations:
+    {text[:1000]}
+    """
+    response = call_llm_api(keyword_prompt)
+    # Process the response
+    keywords = [keyword.strip() for keyword in response.split(',')]
+    # Filter out any empty strings
+    keywords = [k for k in keywords if k]
+    return keywords
+
 def generate_unhinged_theory(text: str) -> str:
     """
     Generate a wild, unhinged theory based on user input text.

@@ -1,6 +1,7 @@
-import json
+from os import path
 import os
 import requests
+import json
 from typing import Dict, Optional, Any
 import hashlib
 import re
@@ -20,12 +21,20 @@ def call_llm_api(prompt: str) -> str:
         The generated text response
     """
     try:
+        # Add explicit instructions to the model to avoid special characters and formatting
+        enhanced_prompt = f"""
+{prompt}
+
+IMPORTANT: Please provide a clean, plain text response with no special tokens, HTML tags, 
+markdown formatting, or code blocks. Do not include symbols like '://', HTML/XML tags, or template code.
+"""
+        
         print(f"Sending request to LLM API at {LLM_API_URL}...")
         response = requests.post(
             LLM_API_URL,
             json={
-                "model": "hermes-2-llama-3.1-8b", 
-                "prompt": prompt,
+                "model": "hermes-3-llama-3.1-8b", 
+                "prompt": enhanced_prompt,
                 "max_tokens": 800,
                 "temperature": 0.7,
                 "top_p": 0.9,
@@ -63,7 +72,7 @@ def call_llm_api(prompt: str) -> str:
 
 def clean_special_tokens(text: str) -> str:
     """
-    Clean special tokens and unwanted content from the LLM output.
+    Clean special tokens from the LLM output.
     
     Args:
         text: The text to clean
@@ -73,34 +82,40 @@ def clean_special_tokens(text: str) -> str:
     """
     # Clean LLM special tokens
     patterns = [
+        # LLM special tokens
         r'<\|end_of_text\|>',
         r'<\|begin_of_text\|>',
-        r'://>', 
-        r'_REF\d+',
+        
+        # Common special characters and patterns
+        r'://>|://',  # Colon slash pattern - more aggressive removal
+        r'_REF\d+',   # Reference tags
+        
+        # Template/formatting tokens
         r'{if!nbsp;.*?}',  # Match the {if!nbsp;...} pattern
-        r'nbsp;',
-        r'\.Formspringendon',  # Remove Formspring references
+        r'nbsp;',          # HTML non-breaking space entity
+        r'\{\{.*?\}\}',    # Template syntax like {{...}}
+        r'\[\[.*?\]\]',    # Wiki-style links [[...]]
+        
+        # Code block markers and HTML tags
+        r'```(?:\w+)?|```', # Markdown code blocks with or without language spec
+        r'`(?:\w+)?',       # Inline code formatting
+        r'</?(?:html|p|div|span|h\d|ul|li|a|code|pre)[^>]*>', # Common HTML tags
+        
+        # Programming language fragments
+        r'(?:php\s*//|} else \{ \? \?>)',  # PHP code fragments
+        r'(?:function|class|if|else|for|while)\s*\{',  # Common programming constructs
+        r'\}\s*(?:else|catch|finally)?',  # Closing braces with optional keywords
     ]
     
     cleaned = text
     for pattern in patterns:
         cleaned = re.sub(pattern, '', cleaned)
     
-    # Remove HTML tags
-    cleaned = re.sub(r'<[^>]*>', '', cleaned)
-    
-    # Remove code blocks (content between ``` marks)
-    cleaned = re.sub(r'```[\s\S]*?```', '', cleaned)
-    
-    # Remove URLs
-    cleaned = re.sub(r'https?://\S+', '', cleaned)
+    # Replace any sequences of special characters
+    cleaned = re.sub(r'[^\w\s.,;:!?()-]', ' ', cleaned)
     
     # Remove repeated whitespace
     cleaned = re.sub(r'\s+', ' ', cleaned)
-    
-    # Fix spacing after punctuation
-    cleaned = re.sub(r'(\w)\.(\w)', r'\1. \2', cleaned)
-    cleaned = re.sub(r'(\w),(\w)', r'\1, \2', cleaned)
     
     return cleaned.strip()
 
