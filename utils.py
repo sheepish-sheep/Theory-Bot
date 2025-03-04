@@ -21,12 +21,21 @@ def call_llm_api(prompt: str) -> str:
         The generated text response
     """
     try:
-        # Add explicit instructions to the model to avoid special characters and formatting
+        # Add explicit instructions to the model to return only plain text
         enhanced_prompt = f"""
 {prompt}
 
-IMPORTANT: Please provide a clean, plain text response with no special tokens, HTML tags, 
-markdown formatting, or code blocks. Do not include symbols like '://', HTML/XML tags, or template code.
+IMPORTANT INSTRUCTIONS:
+1. Return ONLY plain text words in your response
+2. DO NOT include ANY special characters or formatting of any kind
+3. DO NOT use:
+   - HTML tags or elements
+   - Markdown syntax or code blocks
+   - Special tokens or symbols like '://'
+   - Programming code or syntax
+   - Template expressions like {{...}} or [[...]]
+   
+YOUR RESPONSE MUST CONTAIN NOTHING BUT ORDINARY WORDS, NUMBERS, AND BASIC PUNCTUATION (.,'?!).
 """
         
         print(f"Sending request to LLM API at {LLM_API_URL}...")
