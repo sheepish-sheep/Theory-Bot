@@ -9,6 +9,19 @@ Theory Bot is an AI-powered web application that generates wild, unhinged theori
 
 - **Franchise Mode**: Takes the name of a franchise (e.g., Star Wars, Marvel) and generates wild fan theories about it.
 
+## 📸 Screenshots
+
+Here's a look at Theory Bot in action:
+
+![Theory Bot Main Interface](screenshots/main_interface.png)
+*The main interface allows you to choose between Unhinged and Franchise modes*
+
+![Unhinged Theory Example](screenshots/unhinged_theory.png)
+*An example of an unhinged theory generated from random input*
+
+![Franchise Theory Example](screenshots/franchise_theory.png)
+*A wild fan theory about a popular franchise*
+
 ## 🛠️ Tech Stack
 
 | Component | Technology |
